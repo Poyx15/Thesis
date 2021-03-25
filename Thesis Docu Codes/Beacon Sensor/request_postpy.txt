@@ -1,0 +1,110 @@
+#!/bin/bash
+#This is working. Use this with the /posts page
+
+import requests
+from sensor import get_distance
+import datetime
+import time
+
+# distance = find_distance()
+location = "Boston Street"
+scale = 1
+level1 = 10 * scale #10
+level2 = 15 * scale #19
+level3 = 20 * scale #26
+level4 = 25 * scale #37
+level5 = 30 * scale #45
+
+def get_max_height():
+    max_height = find_distance()
+    return max_height
+
+
+def get_flood_height(previous_level):
+    previous_level = previous_level
+    feet_distance = None
+    distance = round(float(sensor_height) - get_distance(), 2)
+    feet_distance = str(round(distance/12, 2)) + " feet"
+    print(distance)
+    level = 0
+    category_level = ""
+    message = ""
+    formated_datetime = datetime.datetime.now().strftime("%m/%d/%Y  %H:%M:%S")
+
+    if distance > level5:
+        level = 5
+        category_level = "Waist Level"
+        message = "Message From Flood Alert PH: As of {time}, the flood water level at {location} is at alert LEVEL 5: CHEST LEVEL {measurement}. Not passable to all vehicles. Please evacuate immediately.".format(time=formated_datetime, location=location, measurement=feet_distance)
+
+        
+
+    elif distance > level4:
+        level = 4
+        category_level = "Tire Level"
+        message = "Message From Flood Alert PH As of {time}, the flood water level at {location} is at alert LEVEL 4: WAIST LEVEL {measurement}. Not passable to all vehicles. Please prepare for evacuation.".format(time=formated_datetime, location=location, measurement=feet_distance)
+
+        
+    elif distance > level3:
+        level = 3
+        category_level = "Knee Level"
+        message = "Message From Flood Alert PH: As of {time}, the flood water level at {location} is at alert LEVEL 3: KNEE LEVEL {measurement}.  Not passable to light vehicles.".format(time=formated_datetime, location=location, measurement=feet_distance)
+
+
+    elif distance > level2:
+        level = 2
+        category_level = "Half Tire Level"
+        message = "Message From Flood Alert PH: As of {time}, the flood water level at {location} is at alert LEVEL 2: HALF TIRE LEVEL {measurement}. Passable to all types of vehicles.".format(time=formated_datetime, location=location, measurement=feet_distance)
+
+
+    elif distance > level1:
+        level = 1
+        category_level = "Gutter Level"
+        message = "Message From Flood Alert PH: As of {time}, the flood water level at {location} is at alert LEVEL 1: GUTTER LEVEL {measurement}. Passable to all types of vehicles.".format(time=formated_datetime, location=location, measurement=feet_distance)
+
+
+
+    if level > 0 and level != previous_level:
+        
+        payload = {"Location": location,
+                   "ActualHeight": distance,
+                   "Level": level,
+                   "Message": message,
+                   "CategoryLevel": category_level,
+                   "FormatedDateTime": formated_datetime
+                   }
+
+        r = requests.post('http://bahaphilippines2020.pythonanywhere.com/posts', json=payload)
+        print(r.text)
+        
+    print("Level: {}".format(level))
+    print("PLevel: {}".format(previous_level))
+    previous_level = level
+    print("AfterLevel: {}".format(previous_level))
+    return level
+    
+    
+
+f = open("sensor_height.txt", "r")
+sensor_height = f.read()
+
+#get_flood_height()
+level = None
+loading = ""
+x = 1529
+while True:
+    while x < 100:
+        
+        if x % 2 == 0:
+            loading = loading + "x"
+        else:
+            loading = loading + "+"
+        x = x+2
+
+        print("\r" + "Resting...  " + str(x) + "% Complete", end="")
+        time.sleep(0.25)
+    x = 0
+    print('\nReading...')
+    # Execute Command Here
+    level = get_flood_height(level)
+#    get_flood_height(level)
+

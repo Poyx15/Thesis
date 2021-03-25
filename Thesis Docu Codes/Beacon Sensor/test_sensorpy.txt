@@ -1,0 +1,7 @@
+from sensor import get_distance
+import time
+
+
+while True:
+    print(get_distance())
+    time.sleep(1)

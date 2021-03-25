@@ -1,0 +1,16 @@
+from sensor import get_distance
+
+# distance = get_distance
+
+
+
+def get_max_height():
+    max_height = get_distance()
+    return max_height
+    
+sensor_height = str(get_max_height())
+    
+f = open("sensor_height.txt", "w")
+f.write(sensor_height)
+print(sensor_height)
+f.close()

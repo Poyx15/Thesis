@@ -1,0 +1,185 @@
+from flask import Flask, render_template, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+from outbound import outbound
+from plot import plot_daily, plot_monthly, plot_yearly
+
+
+app = Flask(__name__)
+app.config["DEBUG"] = True
+
+SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
+    username="BahaPhilippines2",
+    password="thesis2020",
+    hostname="BahaPhilippines2020.mysql.pythonanywhere-services.com",
+    databasename="BahaPhilippines2$BahaDB",
+)
+app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db = SQLAlchemy(app)
+
+class Announcement(db.Model):
+
+    __tablename__ = "Announcements"
+
+    id = db.Column(db.Integer, primary_key=True)
+    actualheight = db.Column(db.Float())
+    level = db.Column(db.Integer)
+    message = db.Column(db.String(250))
+    posted = db.Column(db.DateTime, default=datetime.now)
+    categorylevel = db.Column(db.String(200))
+    formateddatetime = db.Column(db.String(200))
+    location = db.Column(db.String(200))
+
+
+class Subscribers(db.Model):
+    __tablename__ = 'Subscribers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    access_token = db.Column(db.String(250))
+    subscriber_number = db.Column(db.String(100))
+
+    def save_subscriber(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete_subscriber(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+@app.route("/homepage")
+def index():
+    return render_template("home_page.html")
+
+
+@app.route('/flood_data', methods=['GET'])
+def flood_data():
+    page = request.args.get("page", 1, type=int)
+    announcements = Announcement.query.order_by(Announcement.posted.desc()).paginate(page=page, per_page=20)
+    return render_template('data.html', announcements=announcements, title='subscribers'), 200
+
+@app.route('/announcements', methods=["GET"])
+def announcement():
+    return render_template("announcement_page.html", Announcements=reversed(Announcement.query.all()))
+
+
+@app.route('/globe/', methods=["GET"])
+def opt_in():
+    access_token = request.args.get("access_token")
+    subscriber_number = request.args.get("subscriber_number")
+    new_subscriber = Subscribers(access_token=access_token,
+                                  subscriber_number=subscriber_number)
+
+    if access_token is not None and subscriber_number is not None:
+        Subscribers.save_subscriber(new_subscriber)
+
+    subscribers = reversed(Subscribers.query.all())
+    return render_template('subscribers.html', subscribers=subscribers, title='subscribers'), 200
+
+
+@app.route('/globe/', methods=['POST'])
+def stop_subscription():
+    data = request.get_json()
+    access_token = data['unsubscribed']['access_token']
+    subscriber = Subscribers.query.filter_by(access_token=access_token).first()
+    Subscribers.delete_subscriber(subscriber)
+    subscribers = Subscribers.query.all()
+    return render_template('subscribers.html', subscribers=subscribers, title='subscribers'), 200
+
+
+@app.route('/posts', methods=['POST'])
+def posts():
+    req_data = request.get_json()
+
+    ActualHeight = format(req_data['ActualHeight'],  '.3f')
+    Level = req_data['Level']
+    CategoryLevel=req_data['CategoryLevel']
+    FormatedDateTime = req_data['FormatedDateTime']
+    Location = req_data['Location']
+    MessageFromRpi = req_data['Message']
+
+
+    dateTimeObj = datetime.now()
+    timeStr = dateTimeObj.strftime("%m/%d/%Y  %H:%M:%S")
+
+    # Message = "As of {}. Ang sukat ng tubig sa Consolacion St. ay {} inches at itinataas na ang warning level sa Level {} or {}".format(FormatedDateTime, ActualHeight, Level, CategoryLevel)
+    # Message = MessageFromRpi
+
+    data = Announcement(actualheight=ActualHeight, level=Level, message=MessageFromRpi, categorylevel=CategoryLevel, formateddatetime=FormatedDateTime, location=Location)
+    db.session.add(data)
+    db.session.commit()
+
+    # Message = "Ang sukat ng tubig sa Consolacion St. ay {} inches at itinataas na ang warning level sa {} or {}   /n/n {}".format(ActualHeight, req_data['Message'], laymanlevel,  current_date.posted)
+
+    if Level > 0:
+        subsribersID = Subscribers.query.all()
+        for subscriber in subsribersID:
+            outbound(Message = MessageFromRpi, access_token = subscriber.access_token, subscriber_number = subscriber.subscriber_number)
+
+
+    return '''The Actual Height is {}.
+    The Level is {}.
+    The message: {}.
+    Time Posted: {}.
+    Category Level : {}.
+    '''.format(ActualHeight, Level, MessageFromRpi, datetime.now, CategoryLevel)
+
+@app.route('/home', methods=['GET'])
+def home():
+    return render_template('home.html')
+
+
+@app.route('/about', methods=['GET'])
+def about():
+    return render_template('about.html')
+
+
+@app.route('/help', methods=['GET'])
+def guide():
+    return render_template('help.html')
+
+
+@app.route('/day', methods=['GET'])
+def get_day_plot():
+    get_date = request.args.get("date")
+
+    date = get_date.split('/')
+    month = date[0]
+    day = date[1]
+    year = date[2]
+
+    data = plot_daily(month=month, day=day, year=year)
+
+    return jsonify(data)
+
+
+@app.route('/month', methods=['GET'])
+def get_month_plot():
+    get_date = request.args.get("date")
+
+    date = get_date.split('/')
+    month = date[0]
+    year = date[2]
+
+    data = plot_monthly(month=month, year=year)
+    return jsonify(data)
+
+
+@app.route('/year', methods=['GET'])
+def get_year_plot():
+    get_date = request.args.get("date")
+
+    date = get_date.split('/')
+    year = date[2]
+
+    data = plot_yearly(year=year)
+    return jsonify(data)
+
+
+
+
+
+

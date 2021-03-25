@@ -1,0 +1,9 @@
+{% block content %}
+  {% for subscriber in subscribers %}
+    <ul id="subscriber.access_token">
+        <li>ID Number: {{ subscriber.id }}</li>
+        <li>Access Token: {{ subscriber.access_token }}</li>
+        <li>Subscriber's Number: {{ subscriber.subscriber_number }}</li>
+    </ul>
+  {% endfor %}
+{% endblock %}

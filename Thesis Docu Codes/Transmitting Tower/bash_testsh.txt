@@ -1,0 +1,38 @@
+
+
+x=1
+while [ $x -le 10 ]
+do
+  retn_value=$(python TextToSpeech.py)
+  if [[ $retn_value -gt 3 ]]
+  then
+    echo "OVERRIDING!!"
+    
+    echo "Converting MP3 to wave file..."
+    python convert.py
+    
+    echo "Transmitting audio to Radio..."
+    echo "Transmitting to 90.7 FM"
+    python Transmit_Freq1.py
+    sleep 1
+    echo "Transmitting to 91.5 FM"
+    python Transmit_Freq2.py
+    sleep 1
+    echo "Transmitting to 97.1 FM"
+    python Transmit_Freq3.py
+    sleep 1
+
+    echo "Overriding Complete"
+    sleep 1
+    echo "Cooling down..."
+    sleep 180
+
+  else
+    echo "The level is equal or less than 3."
+  fi
+
+  echo "Resting..."
+  sleep 10
+done
+
+

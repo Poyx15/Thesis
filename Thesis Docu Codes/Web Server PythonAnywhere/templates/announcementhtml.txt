@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title> Announcements </title>
+{% endblock %}
+
+
+
+{% block body %}
+<h1>Announcements</h1>
+
+    {% for Announcement in Announcements%}
+    <div class="row" style="margin-left: 1ex">
+        <div>{{ Announcement.id }}</div>
+        <div>{{ Announcement.level }}</div>
+        <div>{{ Announcement.actualheight }}</div>
+        <div>{{ Announcement.message }}</div>
+        <div>{{ Announcement.posted }}</div>
+        <br>
+    </div>
+    {% endfor %}
+
+
+{% endblock %}

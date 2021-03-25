@@ -1,0 +1,31 @@
+.row {
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.container {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.header{
+	background-color: #f6f6f6;
+}
+
+.nav{
+    background-color: #172a3a;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.nav .nav-link:hover {
+    background-color: #8da9c4;
+    color: #ffffff;
+}
+
+.display-5{
+    font-family: 'Quicksand', sans-serif;
+    font-size: 48px;
+}
+

@@ -1,0 +1,22 @@
+import requests
+
+def outbound(Message, access_token, subscriber_number):
+
+
+    shortcode = '21589064'
+    access_token = access_token
+    address = subscriber_number
+    clientCorrelator = '21587128'
+    message = Message
+
+    url = "https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/"+shortcode+"/requests"
+
+    querystring = {"access_token":access_token}
+
+    payload = "{\"outboundSMSMessageRequest\": { \"clientCorrelator\": \""+clientCorrelator+"\", \"senderAddress\": \""+shortcode+"\", \"outboundSMSTextMessage\": {\"message\": \""+message+"\"}, \"address\": \""+address+"\" } }"
+    headers = { 'Content-Type': "application/json", 'Host': "devapi.globelabs.com.ph" }
+
+    response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
+
+    # print(response.text)
+    return response.text

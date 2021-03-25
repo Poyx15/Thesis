@@ -1,0 +1,99 @@
+
+body{
+ margin: 0;
+ border: 0;
+}
+
+.header{
+	background-color: #f6f6f6;
+}
+
+
+.topnav ul{
+  list-style-type: none;
+  margin: 0;
+  padding: 0px;
+  overflow: hidden;
+  background-color: #172a3a;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.topnav li{
+  float: left;
+}
+
+.topnav li a{
+	display: block;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+	padding: 10px 190.3px;
+	margin: 0;
+}
+
+
+/* Change the color of links on hover */
+.topnav a:hover {
+    background-color: #8da9c4;
+    color: #ffffff;
+}
+
+/* Add a color to the active/current link */
+.topnav a.active {
+  background-color: #13315c;
+  color: #ffffff;
+}
+
+
+.column {
+  float: center;
+  width: 50%;
+}
+
+ /*Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+
+.content {
+  background-image: url("/static/mnlflood1.png");
+  height: 500px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+}
+
+.info h1, h3, block{
+  color: black;
+}
+
+.info h1{
+	margin: auto;
+	font-family: 'Poppins', sans-serif;
+}
+
+.info button{
+	font-family: 'Kumbh Sans', sans-serif;
+}
+.info h3{
+	font-family: 'Montserrat', sans-serif;
+}
+
+.block {
+  display: block;
+  width: 50%;
+  border-radius: 2px;
+  background-color: #274c77;
+  padding: 14px 28px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+	color: white;
+	margin: auto;
+}
+
+
